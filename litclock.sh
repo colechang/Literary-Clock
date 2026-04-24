@@ -45,7 +45,15 @@ while true; do
         sleep 1
     fi
 
-    $FBINK -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=18,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
+    # Night mode between 10pm and 6am
+    HOUR=$(date +%H)
+    if [ "$HOUR" -ge 22 ] || [ "$HOUR" -lt 6 ]; then
+        $FBINK -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=18,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
+    else
+        $FBINK -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=18,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
+    fi
+
+    # $FBINK -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=18,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
 
     SECS=$(date +%S)
     WAIT=$(expr 60 - $SECS)
