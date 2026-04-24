@@ -16,7 +16,7 @@ while true; do
     TIME=$(date +%H:%M)
 
     # Pick exactly ONE random matching line
-    LINE=$(grep "^$TIME|" "$CSV" | sort -R | head -1)
+    LINE=$(grep "^$TIME|" "$CSV" | awk 'BEGIN{srand()} {lines[NR]=$0} END{if(NR>0) print lines[int(rand()*NR)+1]}')
 
     # # Fall back to nearest previous time
     # if [ -z "$LINE" ]; then
