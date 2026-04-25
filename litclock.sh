@@ -55,7 +55,16 @@ while true; do
 
     # $FBINK -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=18,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
 
+    # Check every second for touch refresh signal
     SECS=$(date +%S)
     WAIT=$(expr 60 - $SECS)
-    sleep $WAIT
+    i=0
+    while [ $i -lt $WAIT ]; do
+        if [ -e /tmp/litclock_refresh ]; then
+            rm /tmp/litclock_refresh
+            break
+        fi
+        sleep 1
+        i=$(expr $i + 1)
+    done
 done

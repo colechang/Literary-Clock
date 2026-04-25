@@ -29,4 +29,5 @@ $FBINK -m -M -t regular="$REGULAR",italic="$ITALIC",size=14,top=320,bottom=250,p
 sleep 3
 
 # Hand off to main clock loop
+setsid nohup /mnt/sd/touch_watcher.sh > /tmp/touch_watcher.log 2>&1 &
 setsid nohup /mnt/sd/litclock.sh > /tmp/litclock.log 2>&1 &
