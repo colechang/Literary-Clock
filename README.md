@@ -113,7 +113,7 @@ The script performs a full flashing screen refresh (`fbink -f -k`) every 30 minu
 - Contains FBInk — the binary responsible for writing custom quotes to the eInk screen
 - Provides the `stuff.sh` udev boot hook used for autostart
 - Install by copying `KoboRoot.tgz` to `/mnt/onboard/.kobo/` and rebooting
-- Does **not** touch `rcS`, `inittab`, or any system files
+- Does **not** touch `rcS`, `inittab`, or any system files! I learned that the hard way.
 
 ---
 
