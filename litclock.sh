@@ -37,9 +37,9 @@ while true; do
 — $BOOK, $AUTHOR"
     fi
 
-    # Full flash refresh every 30 minutes to prevent ghosting
+    # Full flash refresh every 5 minutes to prevent ghosting
     COUNTER=$(expr $COUNTER + 1)
-    if [ $COUNTER -ge 30 ]; then
+    if [ $COUNTER -ge 5 ]; then
         $FBINK -f -k
         COUNTER=0
         sleep 1
@@ -52,8 +52,6 @@ while true; do
     else
         $FBINK -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=18,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
     fi
-
-    # $FBINK -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=18,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
 
     # Check every second for touch refresh signal
     SECS=$(date +%S)
