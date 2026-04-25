@@ -18,11 +18,6 @@ while true; do
     # Pick exactly ONE random matching line
     LINE=$(grep "^$TIME|" "$CSV" | awk 'BEGIN{srand()} {lines[NR]=$0} END{if(NR>0) print lines[int(rand()*NR)+1]}')
 
-    # # Fall back to nearest previous time
-    # if [ -z "$LINE" ]; then
-    #     LINE=$(grep -E "^[0-9]{2}:[0-9]{2}\|" "$CSV" | awk -F'|' -v t="$TIME" '$1 <= t {last=$0} END{print last}')
-    # fi
-
     if [ -z "$LINE" ]; then
 
         DISPLAY_TEXT="Time passes. ***$TIME***"
@@ -45,12 +40,22 @@ while true; do
         sleep 1
     fi
 
+    # Adjust font size based on quote length
+    QUOTE_LEN=$(echo "$DISPLAY_TEXT" | wc -c)
+    if [ "$QUOTE_LEN" -gt 400 ]; then
+        FONT_SIZE=13
+    elif [ "$QUOTE_LEN" -gt 250 ]; then
+        FONT_SIZE=15
+    else
+        FONT_SIZE=18
+    fi
+
     # Night mode between 10pm and 6am
     HOUR=$(date +%H)
     if [ "$HOUR" -ge 22 ] || [ "$HOUR" -lt 6 ]; then
-        $FBINK -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=18,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
+        $FBINK -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
     else
-        $FBINK -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=18,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
+        $FBINK -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
     fi
 
     # Check every second for touch refresh signal
