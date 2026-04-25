@@ -40,6 +40,8 @@ while true; do
         sleep 1
     fi
 
+    DISPLAY_TEXT=$(printf '%b' "$DISPLAY_TEXT")
+
     # Adjust font size based on quote length
     QUOTE_LEN=$(echo "$DISPLAY_TEXT" | wc -c)
     if [ "$QUOTE_LEN" -gt 400 ]; then
