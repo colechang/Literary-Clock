@@ -1,5 +1,4 @@
 #!/bin/sh
-
 FBINK="/mnt/sd/koreader/fbink"
 CSV="/mnt/sd/quotes.csv"
 FONT_DIR="/mnt/sd/koreader/fonts/noto"
@@ -7,6 +6,7 @@ REGULAR="$FONT_DIR/NotoSerif-Regular.ttf"
 BOLD="$FONT_DIR/NotoSerif-Bold.ttf"
 ITALIC="$FONT_DIR/NotoSerif-Italic.ttf"
 BOLDITALIC="$FONT_DIR/NotoSerif-BoldItalic.ttf"
+COUNTER=0
 
 while true; do
     # Keep nickel dead
@@ -28,7 +28,6 @@ while true; do
         AUTHOR=$(echo "$LINE" | cut -d'|' -f5 | sed 's/^ *//;s/ *$//')
         DISPLAY_TEXT=$(echo "$QUOTE" | sed "s|$HIGHLIGHT|***$HIGHLIGHT***|")
         DISPLAY_TEXT="$DISPLAY_TEXT
-
 — $BOOK, $AUTHOR"
     fi
 
@@ -39,8 +38,6 @@ while true; do
         COUNTER=0
         sleep 1
     fi
-
-    DISPLAY_TEXT=$(printf '%b' "$DISPLAY_TEXT")
 
     # Adjust font size based on quote length
     QUOTE_LEN=$(echo "$DISPLAY_TEXT" | wc -c)
