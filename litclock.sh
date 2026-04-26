@@ -34,7 +34,7 @@ while true; do
     # Full flash refresh every 5 minutes to prevent ghosting
     COUNTER=$(expr $COUNTER + 1)
     if [ $COUNTER -ge 5 ]; then
-        $FBINK -f -k
+        $FBINK -q -f -k
         COUNTER=0
         sleep 1
     fi
@@ -52,9 +52,9 @@ while true; do
     # Night mode between 10pm and 6am
     HOUR=$(date +%H)
     if [ "$HOUR" -ge 22 ] || [ "$HOUR" -lt 6 ]; then
-        $FBINK -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
+        $FBINK -q -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
     else
-        $FBINK -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
+        $FBINK -q -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
     fi
 
     # Check every second for touch refresh signal
@@ -70,3 +70,4 @@ while true; do
         i=$(expr $i + 1)
     done
 done
+

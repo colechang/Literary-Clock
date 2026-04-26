@@ -23,11 +23,11 @@ killall sickel-launcher 2>/dev/null
 mount -o remount,rw /mnt/sd
 
 # Startup splash
-$FBINK -c -m -M -t regular="$REGULAR",italic="$ITALIC",size=28,top=200,bottom=200,padding=BOTH,format "*Literary Clock*"
+$FBINK -q -c -m -M -t regular="$REGULAR",italic="$ITALIC",size=28,top=200,bottom=200,padding=BOTH,format "*Literary Clock*"
 sleep 1
-$FBINK -m -M -t regular="$REGULAR",italic="$ITALIC",size=14,top=320,bottom=250,padding=BOTH,format "time told in literature"
+$FBINK -q -m -M -t regular="$REGULAR",italic="$ITALIC",size=14,top=320,bottom=250,padding=BOTH,format "time told in literature"
 sleep 3
 
 # Hand off to main clock loop
 setsid nohup /mnt/sd/touch_watcher.sh > /tmp/touch_watcher.log 2>&1 &
-setsid nohup /mnt/sd/litclock.sh > /tmp/litclock.log 2>&1 &
+setsid nohup /mnt/sd/litclock.sh 2> /tmp/litclock.log &
