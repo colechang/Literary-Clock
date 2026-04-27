@@ -1,4 +1,4 @@
-# Kobo Touch N905C Literary Clock
+#Literary Clock
 
 A literary clock for the Kobo that displays time-matched literary quotes on the eInk screen using a custom Linux shell script and FBInk.
 
