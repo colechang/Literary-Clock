@@ -26,7 +26,8 @@ while true; do
         HIGHLIGHT=$(echo "$LINE" | cut -d'|' -f2)
         BOOK=$(echo "$LINE" | cut -d'|' -f4 | sed 's/^ *//;s/ *$//')
         AUTHOR=$(echo "$LINE" | cut -d'|' -f5 | sed 's/^ *//;s/ *$//')
-        DISPLAY_TEXT=$(echo "$QUOTE" | sed "s|$HIGHLIGHT|***$HIGHLIGHT***|")
+        ESCAPED=$(echo "$HIGHLIGHT" | sed 's/[.[\*^$()+?{}|]/\\&/g')
+        DISPLAY_TEXT=$(echo "$QUOTE" | sed "s|$ESCAPED|***$HIGHLIGHT***|")
         DISPLAY_TEXT="$DISPLAY_TEXT
 — $BOOK, $AUTHOR"
     fi
