@@ -1,6 +1,6 @@
 # Kobo Touch N905C Literary Clock
 
-A literary clock for the Kobo Touch N905C (Trilogy @ Mark 4) that displays time-matched literary quotes on the eInk screen using a custom Linux shell script and FBInk.
+A literary clock for the Kobo that displays time-matched literary quotes on the eInk screen using a custom Linux shell script and FBInk.
 
 ---
 
@@ -9,7 +9,7 @@ A literary clock for the Kobo Touch N905C (Trilogy @ Mark 4) that displays time-
 - **Model:** Kobo Touch N905C (Trilogy @ Mark 4)
 - **CPU:** i.MX507 ARMv7
 - **Screen:** 600x800 eInk, 167 dpi
-- **Kernel:** Linux 2.6.35.3
+- **Kernel:** Linux 2.6.35.3 (BusyBox v1.35.99.139-g15f7d618e)
 
 ---
 
@@ -21,6 +21,7 @@ On boot, the device runs `stuff.sh` via a udev hook (provided by NiLuJe's usbnet
 
 ## File Layout
 
+Easier to use a SD card due to the limited onboard memory
 | File | Location | Description |
 |------|----------|-------------|
 | Main clock script | `/mnt/sd/litclock.sh` | The main clock loop |
@@ -35,6 +36,7 @@ On boot, the device runs `stuff.sh` via a udev hook (provided by NiLuJe's usbnet
 ## Key Commands
 
 ### Manually start the clock (from telnet/SSH)
+
 ```sh
 killall nickel 2>/dev/null
 killall sickel 2>/dev/null
@@ -43,27 +45,27 @@ setsid nohup /mnt/sd/litclock.sh > /tmp/litclock.log 2>&1 &
 ```
 
 ### Check if the clock is running
+
 ```sh
 ps | grep litclock
 ```
 
-### View the log
-```sh
-cat /tmp/litclock.log
-```
-
 ### Remount SD card as writable
+
 ```sh
 mount -o remount,rw /mnt/sd
 ```
+
 > The SD card mounts read-only by default. You must remount it before writing or editing any files on it.
 
 ### Update the clock script or quotes
+
 ```sh
 # SCP from your PC
 scp litclock.sh root@KOBO_IP:/mnt/sd/litclock.sh
 scp quotes.csv root@KOBO_IP:/mnt/sd/quotes.csv
 ```
+
 Changes take effect on the next minute cycle — no reboot needed.
 
 ---
@@ -77,9 +79,21 @@ HH:MM|time phrase|full quote text|Book Title|Author Name
 ```
 
 Example:
+
 ```
-23:37|eleven thirty-seven at night|It was eleven thirty-seven at night.|DW|Cole Chang
+13:00|one o'clock|Czarina Catherine reported entering Galatz at one o'clock today.|Dracula|Bram Stoker
 ```
+
+---
+
+## Extra Fonts
+
+You can try more fonts by adding them to the /mnt/sd/fonts and altering the font constants in `litclock.sh`
+
+- `$REGULAR`
+- `$BOLD`
+- `$ITALIC`
+- `$BOLDITALIC`
 
 ---
 
@@ -100,13 +114,14 @@ udev (loop0 event)
 
 ## Burn-in / Ghosting Prevention
 
-The script performs a full flashing screen refresh (`fbink -f -k`) every 30 minutes to clear eInk ghosting. This is normal — the screen will flash black briefly then return to the quote.
+The script performs a full flashing screen refresh (`fbink -f -k`) every 5 minutes to clear eInk ghosting. This is normal — the screen will flash black briefly then return to the quote.
 
 ---
 
 ## Required Packages
 
 ### NiLuJe's USB Net / Telnet / SSH package
+
 **https://www.mobileread.com/forums/showthread.php?t=254214**
 
 - Necessary for telnet and SSH access to the device
@@ -130,26 +145,7 @@ Historical Kobo firmware versions for all devices. Useful if you need to restore
 - **Do NOT press Home + Power together** — this triggers the recovery partition (sda2) which reformats sda1 and wipes all your changes
 - **Do NOT put untested KoboRoot.tgz files in `.kobo/`** — a bad rcS will cause a boot loop that requires manually mounting sda1 on a PC to fix
 - **The SD card mounts read-only** — always run `mount -o remount,rw /mnt/sd` before editing files on it
-- **`/tmp` is a ramdisk** — it gets wiped on every reboot, so don't store anything important there
-- **hindenburg** is the watchdog binary that monitors nickel — do not delete it or the device will reboot after ~1 minute
-
----
-
-## Recovery
-
-If the device gets stuck in a boot loop:
-
-1. Remove the SD card and insert it into a PC card reader
-2. It will appear as multiple partitions — mount `sda1` (the root filesystem):
-```sh
-sudo mount /dev/sda1 /mnt/kobo
-```
-3. Inspect and fix `/mnt/kobo/etc/init.d/rcS`
-4. Remove any bad scripts from `/mnt/kobo/etc/init.d/`
-5. Unmount and reinsert:
-```sh
-sudo umount /mnt/kobo
-```
+- **hindenburg** is the watchdog binary that monitors nickel— do not delete it or the device will reboot after ~1 minute
 
 ---
 
