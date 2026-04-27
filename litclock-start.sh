@@ -20,7 +20,15 @@ sleep 15
 killall nickel 2>/dev/null
 killall sickel 2>/dev/null
 killall sickel-launcher 2>/dev/null
+killall touch_watcher.sh 2>/dev/null
+killall litclock.sh 2>/dev/null
 mount -o remount,rw /mnt/sd
+
+# Sync time only if WiFi is up
+if ping -c 1 -W 2 pool.ntp.org > /dev/null 2>&1; then
+    ntpd -nqp pool.ntp.org 2>/dev/null
+    echo "Time synced at $(date)" >> /tmp/litclock.log
+fi
 
 # Startup splash
 $FBINK -q -c -m -M -t regular="$REGULAR",italic="$ITALIC",size=28,top=200,bottom=200,padding=BOTH,format "*Literary Clock*"
@@ -29,5 +37,5 @@ $FBINK -q -m -M -t regular="$REGULAR",italic="$ITALIC",size=14,top=320,bottom=25
 sleep 3
 
 # Hand off to main clock loop
-setsid nohup /mnt/sd/touch_watcher.sh > /tmp/touch_watcher.log 2>&1 &
+setsid nohup /mnt/sd/touch_watcher.sh 2> /tmp/touch_watcher.log &
 setsid nohup /mnt/sd/litclock.sh 2> /tmp/litclock.log &
