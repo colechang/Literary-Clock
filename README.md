@@ -10,6 +10,7 @@ A literary clock for the Kobo that displays time-matched literary quotes on the 
 - **CPU:** i.MX507 ARMv7
 - **Screen:** 600x800 eInk, 167 dpi
 - **Kernel:** Linux 2.6.35.3 (BusyBox v1.35.99.139-g15f7d618e)
+- **Extra SD Card** 32 GB (Capacity is overkill)
 
 ---
 
@@ -40,8 +41,14 @@ Easier to use a SD card due to the limited onboard memory
 ```sh
 killall nickel 2>/dev/null
 killall sickel 2>/dev/null
+killall sickel-launcher 2>/dev/null
+killall touch_watcher.sh 2>/dev/null
+killall litclock.sh 2>/dev/null
+
 mount -o remount,rw /mnt/sd
-setsid nohup /mnt/sd/litclock.sh > /tmp/litclock.log 2>&1 &
+
+setsid nohup /mnt/sd/touch_watcher.sh 2> /tmp/touch_watcher.log &
+setsid nohup /mnt/sd/litclock.sh 2> /tmp/litclock.log &
 ```
 
 ### Check if the clock is running
@@ -50,7 +57,7 @@ setsid nohup /mnt/sd/litclock.sh > /tmp/litclock.log 2>&1 &
 ps | grep litclock
 ```
 
-### Remount SD card as writable
+### Remount SD card as writable (if needed)
 
 ```sh
 mount -o remount,rw /mnt/sd
@@ -100,6 +107,12 @@ You can try more fonts by adding them to the /mnt/sd/fonts and altering the font
 ## Weather
 
 Above the quote, the weather for the specified city is displayed (if the `wttr.in` API is reachable) and logged to `/tmp/weather_cache.txt`. Change `$CITY` in `litclock.sh` to view the weather for a different city.
+
+---
+
+## Touch Watcher
+
+If other quotes are available at the current time, the `touch_watcher.sh` script listens for touch input events. When the screen is tapped, it triggers a refresh signal (`/tmp/litclock_refresh`), prompting the clock to update and randomly select a different quote from `quotes.csv`. The script also includes a short debounce delay to prevent multiple rapid triggers from a single touch.
 
 ---
 
