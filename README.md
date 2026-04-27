@@ -97,6 +97,12 @@ You can try more fonts by adding them to the /mnt/sd/fonts and altering the font
 
 ---
 
+## Weather
+
+Above the quote, the weather for the specified city is displayed (if the `wttr.in` API is reachable) and logged to `/tmp/weather_cache.txt`. Change `$CITY` in `litclock.sh` to view the weather for a different city.
+
+---
+
 ## Boot Chain
 
 ```
