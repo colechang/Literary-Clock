@@ -30,6 +30,9 @@ if ping -c 1 -W 2 pool.ntp.org > /dev/null 2>&1; then
     echo "Time synced at $(date)" >> /tmp/litclock.log
 fi
 
+# Set landscape rotation
+echo 2 > /sys/class/graphics/fb0/rotate
+
 # Startup splash
 $FBINK -q -c -m -M -t regular="$REGULAR",italic="$ITALIC",size=28,top=200,bottom=200,padding=BOTH,format "*Literary Clock*"
 sleep 1

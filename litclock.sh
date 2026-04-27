@@ -65,21 +65,21 @@ while true; do
     # Adjust font size based on quote length
     QUOTE_LEN=$(echo "$DISPLAY_TEXT" | wc -c)
     if [ "$QUOTE_LEN" -gt 400 ]; then
-        FONT_SIZE=13
-    elif [ "$QUOTE_LEN" -gt 250 ]; then
-        FONT_SIZE=15
-    else
         FONT_SIZE=18
+    elif [ "$QUOTE_LEN" -gt 250 ]; then
+        FONT_SIZE=22
+    else
+        FONT_SIZE=26
     fi
 
     # Night mode between 10pm and 6am
     HOUR=$(date +%H)
     if [ "$HOUR" -ge 22 ] || [ "$HOUR" -lt 6 ]; then
-        $FBINK -q -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
-        [ -n "$WEATHER" ] && $FBINK -q -m -H -t regular="$REGULAR",size=14,top=15,bottom=700,left=50,right=50,padding=BOTH "$WEATHER"
+        $FBINK -q -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=60,right=60,padding=BOTH,format "$DISPLAY_TEXT"
+        [ -n "$WEATHER" ] && $FBINK -q -m -H -t regular="$REGULAR",size=14,top=15,bottom=520,left=60,right=60,padding=BOTH "$WEATHER"
     else
-        $FBINK -q -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
-        [ -n "$WEATHER" ] && $FBINK -q -m -t regular="$REGULAR",size=14,top=15,bottom=700,left=50,right=50,padding=BOTH "$WEATHER"
+        $FBINK -q -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=60,right=60,padding=BOTH,format "$DISPLAY_TEXT"
+        [ -n "$WEATHER" ] && $FBINK -q -m -t regular="$REGULAR",size=14,top=15,bottom=520,left=60,right=60,padding=BOTH "$WEATHER"
     fi
 
     # Check every second for touch refresh signal
