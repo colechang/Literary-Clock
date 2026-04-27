@@ -1,6 +1,28 @@
 # Literary Clock
 
-A literary clock for the Kobo that displays time-matched literary quotes on the eInk screen using a custom Linux shell script and FBInk.
+I took my old Kobo eReader and repurposed it into a literary clock that displays real book quotes matching the current time. Each minute, the screen updates with a random quote containing that exact time, rendered cleanly on the eInk display.
+
+The setup is not permanent, removing the startup commands, followed with a reboot will return the Kobo to its normal state.
+
+## Overview
+This project turns a Kobo device into a minimalist clock powered by literature.
+
+- Uses a dataset of **3000+ time-tagged quotes**
+- Covers all **1440 minutes in a day**
+- Displays text using **FBInk** directly to the framebuffer
+- Updates automatically every minute
+- Optional tap input cycles between multiple quotes for the same time
+- Displays the **weather** of the specified city
+
+<figure>
+      <p align="center">
+            <img src="images/daymode_litclock.jpg" height="500">
+            <br>
+            <em> Ignore the dead pixels in the center. The screen was damaged when the unit was dropped.
+            </em>
+      </p>
+</figure>
+
 
 ---
 
@@ -16,7 +38,22 @@ A literary clock for the Kobo that displays time-matched literary quotes on the 
 
 ## How It Works
 
-On boot, the device runs `stuff.sh` via a udev hook (provided by NiLuJe's usbnet package). This launches `litclock-start.sh`, which waits for the SD card to mount, kills the Kobo UI (nickel), and starts the clock script. The clock script reads `quotes.csv` every minute, finds a matching literary quote for the current time, and renders it to the eInk screen using FBInk.
+On boot, the device runs a udev hook (provided by NiLuJe's usbnet package). This launches `litclock-start.sh`, which waits for the SD card to mount, kills the Kobo UI (nickel), and starts the clock script. The clock script reads `quotes.csv` every minute, finds a matching literary quote for the current time, and renders it to the eInk screen using FBInk.
+
+1. A udev hook runs `stuff.sh`
+2. This launches `litclock-start.sh`
+3. The script:
+   - Waits for the SD card to mount
+   - Stops the Kobo UI (`nickel`)
+   - Starts the clock loop
+
+The main script:
+- Reads `quotes.csv`
+- Matches the current time (HH:MM)
+- Renders a quote using `FBInk`
+   - Refreshes every minute
+- Retrieves/renders the weather of the specified city from `wttr.in`
+   - Refreshes every hour
 
 ---
 
@@ -26,6 +63,7 @@ Easier to use a SD card due to the limited onboard memory
 | File | Location | Description |
 |------|----------|-------------|
 | Main clock script | `/mnt/sd/litclock.sh` | The main clock loop |
+| Touch watcher script | `/mnt/sd/touch_watcher.sh` | Process touch screen events |
 | Quotes database | `/mnt/sd/quotes.csv` | Time-tagged literary quotes |
 | Boot entry point | `/usr/local/stuff/bin/stuff.sh` | Runs at boot via udev |
 | Boot launcher | `/usr/local/stuff/bin/litclock-start.sh` | Waits for SD, kills nickel, starts clock |
