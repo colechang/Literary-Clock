@@ -8,7 +8,7 @@ ITALIC="$FONT_DIR/NotoSerif-Italic.ttf"
 BOLDITALIC="$FONT_DIR/NotoSerif-BoldItalic.ttf"
 WEATHER_CACHE="/tmp/weather_cache.txt"
 CITY="Toronto"
-WEATHER_FORMAT="%l:+%c+%C+%t"
+WEATHER_FORMAT="%l:+%C,+%t"
 
 COUNTER=0
 
@@ -25,7 +25,7 @@ while true; do
             FRESH=$(wget -q -T 5 -O - "wttr.in/$CITY?format=$WEATHER_FORMAT" 2>/dev/null)
             if [ -n "$FRESH" ]; then
                 # Capitalize and clean up
-                echo "$FRESH" | tr -cd '[:print:]' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}' > "$WEATHER_CACHE"
+                echo "$FRESH" | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}' > "$WEATHER_CACHE"
             fi
         fi
     fi
