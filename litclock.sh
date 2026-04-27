@@ -25,7 +25,7 @@ while true; do
             FRESH=$(wget -q -T 5 -O - "wttr.in/$CITY?format=$WEATHER_FORMAT" 2>/dev/null)
             if [ -n "$FRESH" ]; then
                 # Capitalize and clean up
-                echo "$FRESH" | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}' > "$WEATHER_CACHE"
+                echo "$FRESH" | tr -cd '[:print:]' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2)); print}' > "$WEATHER_CACHE"
             fi
         fi
     fi
@@ -76,12 +76,10 @@ while true; do
     HOUR=$(date +%H)
     if [ "$HOUR" -ge 22 ] || [ "$HOUR" -lt 6 ]; then
         $FBINK -q -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
-
-        [ -n "$WEATHER" ] && $FBINK -q -m -y 1 -S 2 -H "$WEATHER"
+        [ -n "$WEATHER" ] && $FBINK -q -m -H -t regular="$REGULAR",size=14,top=15,bottom=700,left=50,right=50,padding=BOTH "$WEATHER"
     else
         $FBINK -q -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=50,right=50,padding=BOTH,format "$DISPLAY_TEXT"
-
-        [ -n "$WEATHER" ] && $FBINK -q -m -y 1 -S 2 "$WEATHER"
+        [ -n "$WEATHER" ] && $FBINK -q -m -t regular="$REGULAR",size=14,top=15,bottom=700,left=50,right=50,padding=BOTH "$WEATHER"
     fi
 
     # Check every second for touch refresh signal
