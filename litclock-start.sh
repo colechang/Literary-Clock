@@ -42,3 +42,4 @@ sleep 3
 # Hand off to main clock loop
 setsid nohup /mnt/sd/touch_watcher.sh 2> /tmp/touch_watcher.log &
 setsid nohup /mnt/sd/litclock.sh 2> /tmp/litclock.log &
+setsid nohup python3 /mnt/sd/dashboard.py > /dev/null 2>&1 &
