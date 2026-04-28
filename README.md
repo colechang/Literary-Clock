@@ -160,6 +160,8 @@ If other quotes are available at the current time, the `touch_watcher.sh` script
 
 By sending the `2` to the system file `/sys/class/graphics/fb0/rotate` we can control the orientation of the framebuffer. This command is sent on startup in `litclock-start.sh`.
 
+If your Kobo can support a newer version of `fbink` you can adjust the rotation `fbink -r` rather than adjusting the framebuffer below.
+
 ```sh
 # Set landscape rotation
 echo 2 > /sys/class/graphics/fb0/rotate
