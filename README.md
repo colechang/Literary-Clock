@@ -5,6 +5,7 @@ I took my old Kobo eReader and repurposed it into a literary clock that displays
 The setup is not permanent, removing the startup commands, followed with a reboot will return the Kobo to its normal state.
 
 ## Overview
+
 This project turns a Kobo device into a minimalist clock powered by literature.
 
 - Uses a dataset of **3000+ time-tagged quotes**
@@ -16,13 +17,13 @@ This project turns a Kobo device into a minimalist clock powered by literature.
 
 <figure>
       <p align="center">
-            <img src="images/daymode_litclock.jpg" height="500">
+            <img src="images/lightmode_litclock.jpg" height="500">
+            <img src="images/darkmode_litclock.jpg" height="500">
             <br>
             <em> Ignore the dead pixels in the center. The screen was damaged when the unit was dropped.
             </em>
       </p>
 </figure>
-
 
 ---
 
@@ -48,12 +49,13 @@ On boot, the device runs a udev hook (provided by NiLuJe's usbnet package). This
    - Starts the clock loop
 
 The main script:
+
 - Reads `quotes.csv`
 - Matches the current time (HH:MM)
 - Renders a quote using `FBInk`
-   - Refreshes every minute
+  - Refreshes every minute
 - Retrieves/renders the weather of the specified city from `wttr.in`
-   - Refreshes every hour
+  - Refreshes every hour
 
 ---
 
@@ -151,6 +153,17 @@ Above the quote, the weather for the specified city is displayed (if the `wttr.i
 ## Touch Watcher
 
 If other quotes are available at the current time, the `touch_watcher.sh` script listens for touch input events. When the screen is tapped, it triggers a refresh signal (`/tmp/litclock_refresh`), prompting the clock to update and randomly select a different quote from `quotes.csv`. The script also includes a short debounce delay to prevent multiple rapid triggers from a single touch.
+
+---
+
+## Orientation
+
+By sending the `2` to the system file `/sys/class/graphics/fb0/rotate` we can control the orientation of the framebuffer. This command is sent on startup in `litclock-start.sh`.
+
+```sh
+# Set landscape rotation
+echo 2 > /sys/class/graphics/fb0/rotate
+```
 
 ---
 
