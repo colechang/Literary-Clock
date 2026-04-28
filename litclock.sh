@@ -75,10 +75,12 @@ while true; do
     # Night mode between 10pm and 6am
     HOUR=$(date +%H)
     if [ "$HOUR" -ge 22 ] || [ "$HOUR" -lt 6 ]; then
-        $FBINK -q -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=60,right=60,padding=BOTH,format "$DISPLAY_TEXT"
+        $FBINK -q -c -m -M -H -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=80,bottom=60,left=60,right=60,padding=BOTH,format "$DISPLAY_TEXT"
+
         [ -n "$WEATHER" ] && $FBINK -q -m -H -t regular="$REGULAR",size=14,top=15,bottom=520,left=60,right=60,padding=BOTH "$WEATHER"
     else
-        $FBINK -q -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=60,bottom=60,left=60,right=60,padding=BOTH,format "$DISPLAY_TEXT"
+        $FBINK -q -c -m -M -t regular="$REGULAR",bold="$BOLD",italic="$ITALIC",bolditalic="$BOLDITALIC",size=$FONT_SIZE,top=80,bottom=60,left=60,right=60,padding=BOTH,format "$DISPLAY_TEXT"
+
         [ -n "$WEATHER" ] && $FBINK -q -m -t regular="$REGULAR",size=14,top=15,bottom=520,left=60,right=60,padding=BOTH "$WEATHER"
     fi
 
