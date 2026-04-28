@@ -15,14 +15,11 @@ This project turns a Kobo device into a minimalist clock powered by literature.
 - Optional tap input cycles between multiple quotes for the same time
 - Displays the **weather** of the specified city
 
-<figure>
-      <p align="center">
-            <img src="images/lightmode_litclock.jpg" height="500">
-            <img src="images/darkmode_litclock.jpg" height="500">
-            <br>
-            <em> Ignore the dead pixels in the center. The screen was damaged when the unit was dropped.
-            </em>
-      </p>
+<figure style="text-align: center;">
+  <img src="images/lightmode_litclock.jpg" height="500" style="display: inline-block;">
+  <img src="images/darkmode_litclock.jpg" height="500" style="display: inline-block;">
+  <br>
+  <em>Ignore the dead pixels in the center. The screen was damaged when the unit was dropped.</em>
 </figure>
 
 ---
