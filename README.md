@@ -9,7 +9,7 @@ The setup is not permanent, removing the startup commands, followed with a reboo
 This project turns a Kobo device into a minimalist clock powered by literature.
 
 - Uses a dataset of **3000+ time-tagged quotes**
-- Covers all **1440 minutes in a day**
+- Covers **1378 of the 1440 minutes** in a day (the rest fall back to a generic card)
 - Displays text using **FBInk** directly to the framebuffer
 - Updates automatically every minute
 - Optional tap input cycles between multiple quotes for the same time
@@ -65,7 +65,8 @@ Easier to use a SD card due to the limited onboard memory
 | File | Location | Description |
 |------|----------|-------------|
 | Main clock script | `/mnt/sd/litclock.sh` | The main clock loop |
-| Touch watcher script | `/mnt/sd/touch_watcher.sh` | Process touch screen events |
+| Touch watcher | `/mnt/sd/touch_watcher` | Processes touch screen events (compiled from `touch_watcher.c`) |
+| Respawn supervisor | `/mnt/sd/litclock-run.sh` | Restarts the clock or watcher if either dies |
 | Quotes database | `/mnt/sd/quotes.csv` | Time-tagged literary quotes |
 | Boot entry point | `/usr/local/stuff/bin/stuff.sh` | Runs at boot via udev |
 | Boot launcher | `/usr/local/stuff/bin/litclock-start.sh` | Waits for SD, kills nickel, starts clock |
@@ -82,14 +83,18 @@ Easier to use a SD card due to the limited onboard memory
 killall nickel 2>/dev/null
 killall sickel 2>/dev/null
 killall sickel-launcher 2>/dev/null
-killall touch_watcher.sh 2>/dev/null
+killall litclock-run.sh 2>/dev/null
+killall touch_watcher 2>/dev/null
 killall litclock.sh 2>/dev/null
 
 mount -o remount,rw /mnt/sd
 
-setsid nohup /mnt/sd/touch_watcher.sh 2> /tmp/touch_watcher.log &
-setsid nohup /mnt/sd/litclock.sh 2> /tmp/litclock.log &
+setsid nohup /mnt/sd/litclock-run.sh /mnt/sd/touch_watcher > /dev/null 2>&1 &
+setsid nohup /mnt/sd/litclock-run.sh /mnt/sd/litclock.sh 2>> /tmp/litclock.log &
 ```
+
+Kill `litclock-run.sh` first — it is the supervisor, and it will otherwise
+restart whatever you just killed.
 
 ### Check if the clock is running
 
@@ -108,12 +113,40 @@ mount -o remount,rw /mnt/sd
 ### Update the clock script or quotes
 
 ```sh
-# SCP from your PC
+make deploy KOBO=192.168.1.42
+```
+
+This validates the dataset and syntax-checks the scripts before pushing
+anything, which matters here because a malformed `quotes.csv` line fails
+silently on the device. To copy a single file by hand:
+
+```sh
 scp litclock.sh root@KOBO_IP:/mnt/sd/litclock.sh
 scp quotes.csv root@KOBO_IP:/mnt/sd/quotes.csv
 ```
 
 Changes take effect on the next minute cycle — no reboot needed.
+
+### Check the quotes dataset
+
+```sh
+make check
+```
+
+Verifies that every row has five fields, that the timestamp parses, that the
+time phrase actually occurs in the quote (otherwise the highlight silently does
+nothing), and reports which minutes have no quote.
+
+### Preview the clock without the device
+
+```sh
+make preview
+```
+
+Runs the real `litclock.sh` loop with a stubbed `fbink` that prints to the
+terminal, so selection, highlighting, font sizing and night mode can be checked
+on a workstation. `litclock.sh` honours `LITCLOCK_FBINK`, `LITCLOCK_CSV` and
+`LITCLOCK_FONTS` for this.
 
 ---
 
@@ -146,13 +179,31 @@ You can try more fonts by adding them to the /mnt/sd/fonts and altering the font
 
 ## Weather
 
-Above the quote, the weather for the specified city is displayed (if the `wttr.in` API is reachable) and logged to `/tmp/weather_cache.txt`. Change `$CITY` in `litclock.sh` to view the weather for a different city.
+Above the quote, the weather for the specified city is displayed (if the
+`wttr.in` API is reachable) and cached to `/tmp/weather_cache.txt`. Change
+`$CITY` in `litclock.sh` to view the weather for a different city.
+
+The reading is refetched once per wall-clock hour and kept on screen for up to
+`$WEATHER_TTL` (3h) afterwards, so a brief WiFi dropout does not blank it.
 
 ---
 
 ## Touch Watcher
 
-If other quotes are available at the current time, the `touch_watcher.sh` script listens for touch input events. When the screen is tapped, it triggers a refresh signal (`/tmp/litclock_refresh`), prompting the clock to update and randomly select a different quote from `quotes.csv`. The script also includes a short debounce delay to prevent multiple rapid triggers from a single touch.
+If other quotes are available at the current time, `touch_watcher` (compiled
+from `touch_watcher.c`) polls `/dev/input/event1` for touch-down events. When
+the screen is tapped, it creates a refresh signal (`/tmp/litclock_refresh`),
+prompting the clock to draw a different quote for the same minute — never the
+one already on screen. It debounces for 2s so a single touch fires once.
+
+`touch_watcher.sh` is an earlier shell implementation using blocking `dd` reads.
+It is kept for reference; the compiled watcher is what runs.
+
+Build the watcher with an ARM cross-compiler:
+
+```sh
+make watcher CC=arm-linux-musleabihf-gcc
+```
 
 ---
 
@@ -179,7 +230,8 @@ udev (loop0 event)
               ├── sleeps 15s for nickel to start
               ├── killall nickel / sickel / sickel-launcher
               ├── mount -o remount,rw /mnt/sd
-              └── setsid nohup /mnt/sd/litclock.sh > /tmp/litclock.log 2>&1 &
+              ├── setsid nohup litclock-run.sh /mnt/sd/touch_watcher &
+              └── setsid nohup litclock-run.sh /mnt/sd/litclock.sh &
 ```
 
 ---
@@ -187,6 +239,18 @@ udev (loop0 event)
 ## Burn-in / Ghosting Prevention
 
 The script performs a full flashing screen refresh (`fbink -f -k`) every 5 minutes to clear eInk ghosting. This is normal — the screen will flash black briefly then return to the quote.
+
+The interval is keyed to the wall clock, not to loop iterations, so tapping the
+screen repeatedly does not drag the flash forward.
+
+---
+
+## Reliability
+
+`litclock-run.sh` supervises both the clock loop and the touch watcher,
+restarting either one if it exits, with exponential backoff capped at 60s and a
+line in `/tmp/litclock.log` each time. A frozen eInk screen is indistinguishable
+from a working one, so without this a crash is invisible.
 
 ---
 
