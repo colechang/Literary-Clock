@@ -48,7 +48,7 @@ Everything runs off an SD card (`/mnt/sd`) mounted read-only by default — alwa
 ## Working with this repo
 
 - Deploying changes: `make deploy KOBO=<ip>`, which validates first. A single file by hand: `scp litclock.sh root@KOBO_IP:/mnt/sd/litclock.sh`. Changes take effect on the next minute cycle, no reboot needed.
-- Compiling the touch watcher requires an ARM cross-compiler: `make watcher CC=arm-linux-musleabihf-gcc` (static musl build; see the header comment in `touch_watcher.c`).
+- Compiling the touch watcher: `make watcher-docker` needs no toolchain — it builds natively inside an armv7 Alpine container, which is musl-based and so yields the static musl ARM binary required. `make watcher CC=arm-linux-musleabihf-gcc` does the same with a real cross-toolchain. musl is not optional: the device runs kernel 2.6.35 and modern glibc static binaries need 3.2+.
 - Manual start/stop and status-check commands (for use over telnet/SSH on the device) are documented in README.md under "Key Commands".
 - `stuff.sh` (under `usr/local/stuff/bin/`) mirrors the udev boot-hook entry point installed on the device by NiLuJe's usbnet package — it is tracked here for reference, not built.
 - When tearing down the daemons by hand, `killall litclock-run.sh` **first** — it is the supervisor and will otherwise restart whatever you just killed.

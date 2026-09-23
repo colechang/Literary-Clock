@@ -30,6 +30,17 @@ all: check
 watcher:
 	$(CC) $(CFLAGS) -o touch_watcher touch_watcher.c
 
+# No cross-toolchain needed. Alpine is musl-based, so compiling natively inside
+# an armv7 Alpine container produces exactly the static musl ARM binary the
+# device needs. This matters because the Kobo runs kernel 2.6.35 and a modern
+# glibc static binary requires 3.2+, which is why musl is not optional here.
+.PHONY: watcher-docker
+watcher-docker:
+	docker run --rm --platform linux/arm/v7 -v "$$PWD":/src -w /src alpine:3.19 \
+		sh -c 'apk add --no-cache build-base linux-headers >/dev/null 2>&1 && \
+		       gcc $(CFLAGS) -o touch_watcher touch_watcher.c'
+	@file touch_watcher
+
 .PHONY: check
 check:
 	@for s in $(SCRIPTS); do sh -n "$$s" || exit 1; done
