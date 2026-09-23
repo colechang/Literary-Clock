@@ -105,8 +105,20 @@ while true; do
         sleep 1
     fi
 
-    # Adjust font size based on quote length
-    QUOTE_LEN=$(echo "$DISPLAY_TEXT" | wc -c)
+    # Adjust font size based on how much text actually gets drawn.
+    #
+    # Counted in characters, not bytes. The dataset is full of typographic
+    # quotes and em-dashes, which are 3 bytes each in UTF-8, so `wc -c` charged
+    # a quote for its punctuation and shrank the font: the old size-22 bucket
+    # spanned 189-397 characters while size-26 spanned 54-248, so two quotes of
+    # the same visible length could land in different buckets purely on how many
+    # curly quotes they contained.
+    #
+    # Dropping the UTF-8 continuation bytes (0x80-0xBF) leaves exactly one byte
+    # per character. LC_ALL=C is what makes tr byte-oriented rather than
+    # character-oriented; without it this is a no-op in a UTF-8 locale. The ***
+    # markers are fbink format markup and are never drawn, so they come off too.
+    QUOTE_LEN=$(echo "$DISPLAY_TEXT" | sed 's/\*\*\*//g' | LC_ALL=C tr -d '\200-\277' | wc -c)
     if [ "$QUOTE_LEN" -gt 400 ]; then
         FONT_SIZE=18
     elif [ "$QUOTE_LEN" -gt 250 ]; then
