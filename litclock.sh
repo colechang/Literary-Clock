@@ -146,9 +146,27 @@ while true; do
     # character-oriented; without it this is a no-op in a UTF-8 locale. The ***
     # markers are fbink format markup and are never drawn, so they come off too.
     QUOTE_LEN=$(echo "$DISPLAY_TEXT" | sed 's/\*\*\*//g' | LC_ALL=C tr -d '\200-\277' | wc -c)
-    if [ "$QUOTE_LEN" -gt 400 ]; then
+    #
+    # Thresholds measured on the panel itself, not guessed. fbink's bottom
+    # margin CLIPS text rather than overflowing it, so anything too long is
+    # silently cut off mid-sentence and the screen still looks fine. Rendering
+    # test strings with bottom=0 and checking for ink past the margin gives the
+    # real limits for this 800x600 area with top=80/bottom=60:
+    #
+    #   size 26 overflows at 195 chars      size 16 overflows at 600
+    #   size 22 overflows at 295            size 14 overflows at 850
+    #   size 18 overflows at 465
+    #
+    # The previous thresholds (250/400) sat well above the 26 and 22 limits, so
+    # 1467 of 3241 quotes — 45% — were being truncated on screen. These sit ~8%
+    # under each measured limit, to absorb bold runs and long words.
+    if [ "$QUOTE_LEN" -gt 560 ]; then
+        FONT_SIZE=14
+    elif [ "$QUOTE_LEN" -gt 430 ]; then
+        FONT_SIZE=16
+    elif [ "$QUOTE_LEN" -gt 270 ]; then
         FONT_SIZE=18
-    elif [ "$QUOTE_LEN" -gt 250 ]; then
+    elif [ "$QUOTE_LEN" -gt 175 ]; then
         FONT_SIZE=22
     else
         FONT_SIZE=26
