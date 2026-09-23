@@ -16,7 +16,8 @@ CFLAGS  ?= -static -Os -s -Wall -Wextra
 KOBO    ?= kobo
 SDCARD  ?= /mnt/sd
 
-SCRIPTS = litclock.sh litclock-start.sh litclock-run.sh touch_watcher.sh \
+SCRIPTS = litclock.sh litclock-start.sh litclock-run.sh litclock-drain.sh \
+          touch_watcher.sh \
           tools/validate_quotes.sh tools/fbink-stub
 
 .PHONY: all
@@ -47,6 +48,6 @@ preview:
 .PHONY: deploy
 deploy: check
 	ssh root@$(KOBO) 'mount -o remount,rw $(SDCARD)'
-	scp litclock.sh litclock-run.sh touch_watcher quotes.csv root@$(KOBO):$(SDCARD)/
+	scp litclock.sh litclock-run.sh litclock-drain.sh touch_watcher quotes.csv root@$(KOBO):$(SDCARD)/
 	scp litclock-start.sh root@$(KOBO):/usr/local/stuff/bin/
 	@echo "Deployed. Restart with: ssh root@$(KOBO) /usr/local/stuff/bin/litclock-start.sh"
