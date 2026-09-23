@@ -20,6 +20,11 @@ sleep 15
 killall nickel 2>/dev/null
 killall sickel 2>/dev/null
 killall sickel-launcher 2>/dev/null
+# Both watcher implementations, so a re-run never leaves a stale one behind:
+# this script launches the C binary (touch_watcher) but previously only killed
+# the old shell version, which left two watchers racing on the refresh flag.
+killall litclock-run.sh 2>/dev/null
+killall touch_watcher 2>/dev/null
 killall touch_watcher.sh 2>/dev/null
 killall litclock.sh 2>/dev/null
 mount -o remount,rw /mnt/sd
@@ -39,6 +44,7 @@ sleep 1
 $FBINK -q -m -M -t regular="$REGULAR",italic="$ITALIC",size=14,top=320,bottom=250,padding=BOTH,format "time told in literature"
 sleep 3
 
-# Hand off to main clock loop
-setsid nohup /mnt/sd/touch_watcher > /dev/null 2>&1 &
-setsid nohup /mnt/sd/litclock.sh 2> /tmp/litclock.log &
+# Hand off to main clock loop. Both are respawned if they die, otherwise the
+# screen just freezes on the last quote with nothing to indicate why.
+setsid nohup /mnt/sd/litclock-run.sh /mnt/sd/touch_watcher > /dev/null 2>&1 &
+setsid nohup /mnt/sd/litclock-run.sh /mnt/sd/litclock.sh 2>> /tmp/litclock.log &
