@@ -18,6 +18,13 @@ WEATHER_TTL=10800          # 3h, in seconds
 # Full flashing refresh this often, to clear eInk ghosting.
 FLASH_INTERVAL=5           # minutes
 
+# Re-sync the clock this often. litclock-start.sh syncs once at boot and
+# nothing touched it again, but this device stays up for weeks and the i.MX RTC
+# drifts — and a clock that quietly wanders off the correct time has failed at
+# the only job it has.
+NTP_SERVER="pool.ntp.org"
+
+LAST_SYNC_DAY=$(date +%Y%m%d)   # boot sync just happened, so start from today
 WEATHER_HOUR=""            # YYYYMMDDHH of the last successful fetch
 WEATHER_AT=0               # epoch of the last successful fetch
 LAST_FLASH=0               # epoch minute of the last flashing refresh
@@ -34,6 +41,26 @@ while true; do
     NOW=$(date +%s)
     TIME=$(date +%H:%M)
     ITER=$(expr $ITER + 1)
+
+    # Re-sync the time once a day. Backgrounded so a slow or wedged ntpd can
+    # never stall the render loop; the next attempt is a day out regardless of
+    # how this one goes.
+    TODAY=$(date +%Y%m%d)
+    if [ "$TODAY" != "$LAST_SYNC_DAY" ]; then
+        LAST_SYNC_DAY="$TODAY"
+        (
+            if ping -c 1 -W 2 "$NTP_SERVER" > /dev/null 2>&1; then
+                BEFORE=$(date +%s)
+                ntpd -nqp "$NTP_SERVER" 2>/dev/null
+                AFTER=$(date +%s)
+                # Includes however long ntpd took, so treat it as an upper
+                # bound on the drift rather than an exact figure.
+                echo "$(date '+%Y-%m-%d %H:%M:%S') time re-synced, clock moved $(expr $AFTER - $BEFORE)s (incl. sync time)" >> /tmp/litclock.log
+            else
+                echo "$(date '+%Y-%m-%d %H:%M:%S') time re-sync skipped, $NTP_SERVER unreachable" >> /tmp/litclock.log
+            fi
+        ) &
+    fi
 
     # Fetch the weather at most once per wall-clock hour. Previously this was
     # gated on a counter that reset every 5 iterations, so it actually refetched
