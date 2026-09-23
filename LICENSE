@@ -1,0 +1,77 @@
+This repository contains two separately licensed bodies of work.
+
+
+================================================================================
+1. CODE — MIT License
+================================================================================
+
+Applies to the shell scripts, the C source, the Makefile and the tooling:
+litclock.sh, litclock-start.sh, litclock-run.sh, touch_watcher.c,
+touch_watcher.sh, tools/, Makefile, and usr/local/stuff/bin/stuff.sh (see the
+note below).
+
+MIT License
+
+Copyright (c) 2026 colechang
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+================================================================================
+2. QUOTE DATASET — CC BY-NC-SA 2.5
+================================================================================
+
+Applies to quotes.csv, and NOT to any of the code above.
+
+The quotations were crowd-sourced by readers of the Guardian in 2011 and
+assembled by Jaap Meijers into the original literary clock dataset. They are
+licensed Creative Commons Attribution-NonCommercial-ShareAlike 2.5:
+
+    https://creativecommons.org/licenses/by-nc-sa/2.5/
+
+This means the dataset — including this repository's corrected and extended
+version of it — may be shared and adapted for non-commercial purposes, with
+attribution, and any redistribution must carry the same license.
+
+The quotations themselves are excerpts from copyrighted works, reproduced here
+in the brief, transformative manner the original project established. The
+copyright in each excerpt remains with its respective rightsholder.
+
+Corrections and additions in this repository draw on the dataset's community
+forks, which carry the same license:
+
+    https://github.com/JohannesNE/literature-clock
+    https://github.com/cdmoro/literature-clock
+    https://github.com/kapoorankush/litclock
+
+
+================================================================================
+3. THIRD-PARTY FILES
+================================================================================
+
+usr/local/stuff/bin/stuff.sh is a lightly modified copy of a file from
+NiLuJe's Kobo usbnet/KoboStuff package, tracked here for reference so the boot
+hook is documented. It is not this project's work and is redistributed under
+its original terms:
+
+    https://www.mobileread.com/forums/showthread.php?t=254214
+
+The FBInk binary and the NotoSerif fonts the scripts call at runtime live on
+the device, not in this repository. FBInk is by NiLuJe (GPLv3+, with an
+AGPLv3+ option); Noto fonts are under the SIL Open Font License 1.1.

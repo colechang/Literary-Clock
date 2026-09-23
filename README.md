@@ -293,6 +293,18 @@ If you need more e-reader hacks, tools, and community support:
 
 ---
 
+## License
+
+The **code** (scripts, `touch_watcher.c`, tooling) is MIT.
+
+The **quote dataset** (`quotes.csv`) is not, and cannot be — it descends from
+the Guardian's crowd-sourced collection and stays under CC BY-NC-SA 2.5:
+non-commercial, share-alike, attribution required. Reuse it on those terms.
+
+See [LICENSE](LICENSE) for the full text and for the third-party files.
+
+---
+
 ## Credits
 
 - **FBInk** by NiLuJe — eInk framebuffer writing library
