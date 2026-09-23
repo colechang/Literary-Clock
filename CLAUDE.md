@@ -41,7 +41,7 @@ udev (loop0 event)
 - **`touch_watcher.sh`** — an earlier, simpler shell-based touch watcher using blocking `dd` reads on the raw input device. Superseded by `touch_watcher.c` but kept in the repo.
 - **`litclock-run.sh`** — respawn supervisor. Runs its argument forever, restarting it on exit with exponential backoff (capped at 60s) and a line in `/tmp/litclock.log`. Both daemons run under it, because a crashed clock leaves a frozen eInk screen that looks identical to a working one.
 - **`tools/validate_quotes.sh`** — dataset integrity check. **`tools/fbink-stub`** — terminal stand-in for `fbink`.
-- **`quotes.csv`** — pipe-delimited dataset: `HH:MM|time phrase|full quote text|Book Title|Author Name`. This is the data `litclock.sh` greps by exact `HH:MM` prefix.
+- **`quotes.csv`** — pipe-delimited dataset: `HH:MM|time phrase|full quote text|Book Title|Author Name`. This is the data `litclock.sh` greps by exact `HH:MM` prefix. All 1440 minutes are covered, so the `Time passes.` fallback in `litclock.sh` should now be unreachable; `make check` reports any minute that regresses. Gaps were filled from the upstream Guardian/Jaap Meijers dataset and its community forks — new quotes should come from there rather than be written by hand.
 
 Everything runs off an SD card (`/mnt/sd`) mounted read-only by default — always `mount -o remount,rw /mnt/sd` before editing files there.
 

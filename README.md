@@ -9,7 +9,7 @@ The setup is not permanent, removing the startup commands, followed with a reboo
 This project turns a Kobo device into a minimalist clock powered by literature.
 
 - Uses a dataset of **3000+ time-tagged quotes**
-- Covers **1378 of the 1440 minutes** in a day (the rest fall back to a generic card)
+- Covers all **1440 minutes** in a day
 - Displays text using **FBInk** directly to the framebuffer
 - Updates automatically every minute
 - Optional tap input cycles between multiple quotes for the same time
@@ -296,6 +296,11 @@ If you need more e-reader hacks, tools, and community support:
 ## Credits
 
 - **FBInk** by NiLuJe — eInk framebuffer writing library
-- **Literary clock quotes** based on Jaap Meijers's dataset
+- **Literary clock quotes** based on Jaap Meijers's dataset, originally
+  crowd-sourced by the Guardian and licensed CC BY-NC-SA 2.5. Gaps filled from
+  the community forks that extend it:
+  [JohannesNE/literature-clock](https://github.com/JohannesNE/literature-clock),
+  [cdmoro/literature-clock](https://github.com/cdmoro/literature-clock) and
+  [kapoorankush/litclock](https://github.com/kapoorankush/litclock)
 - **NiLuJe's usbnet/KoboStuff package** — telnet, SSH, and boot hook infrastructure
 - **KoReader** — provided the pre-compiled FBInk binary and NotoSerif fonts
