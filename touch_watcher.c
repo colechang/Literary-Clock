@@ -102,6 +102,7 @@ int main(void)
     struct pollfd pfd;
     long long last_touch_ms = 0;
     int touch_active = 0;
+    int rc = 0;
 
     /* Open log */
     log_fp = fopen(TOUCH_LOG, "a");
@@ -139,17 +140,51 @@ int main(void)
         if (ret < 0) {
             if (errno == EINTR)
                 continue;   /* interrupted by signal, loop again */
-            log_msg("ERROR: poll() failed");
+            log_msg("ERROR: poll() failed, exiting to be restarted");
+            rc = 1;
             break;
         }
 
         if (ret == 0)
             continue;   /* timeout, no event — loop again */
 
+        /*
+         * poll() reports errors and hangups through revents, not through its
+         * return value. If the input device disappears or errors, POLLERR /
+         * POLLHUP is set and poll() returns 1 immediately, forever. Reading
+         * then yields a short read, and continuing spins this loop at 100% CPU
+         * with the 5s timeout never firing again.
+         *
+         * That failure is invisible: litclock.sh keeps drawing, so the screen
+         * looks healthy, and the supervisor cannot help because the process
+         * never exits — the battery just drains in hours. Exit instead, and
+         * let litclock-run.sh restart us with a fresh open() of the device.
+         */
+        if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+            log_msg("ERROR: input device hung up or errored, exiting to be restarted");
+            rc = 1;
+            break;
+        }
+
+        if (!(pfd.revents & POLLIN))
+            continue;   /* nothing readable after all */
+
         /* Read one input_event struct */
         ssize_t n = read(input_fd, &ev, sizeof(ev));
+        if (n < 0) {
+            if (errno == EINTR || errno == EAGAIN)
+                continue;
+            log_msg("ERROR: read() failed, exiting to be restarted");
+            rc = 1;
+            break;
+        }
+        if (n == 0) {
+            log_msg("ERROR: input device returned EOF, exiting to be restarted");
+            rc = 1;
+            break;
+        }
         if (n < (ssize_t)sizeof(ev))
-            continue;
+            continue;   /* partial struct, resync on the next event */
 
         /*
          * The zForce IR touch controller on the N905C reports:
@@ -205,5 +240,5 @@ int main(void)
     if (log_fp)
         fclose(log_fp);
 
-    return 0;
+    return rc;
 }

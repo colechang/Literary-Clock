@@ -9,6 +9,9 @@
 #   make deploy KOBO=192.168.1.42    push the scripts and data to the device
 
 CC      ?= arm-linux-musleabihf-gcc
+# Host compiler, only ever used to syntax-check touch_watcher.c against the
+# stub headers in tools/shim. Never produces a binary for the device.
+HOSTCC  ?= cc
 CFLAGS  ?= -static -Os -s -Wall -Wextra
 KOBO    ?= kobo
 SDCARD  ?= /mnt/sd
@@ -30,6 +33,10 @@ watcher:
 check:
 	@for s in $(SCRIPTS); do sh -n "$$s" || exit 1; done
 	@echo "shell syntax OK"
+	@if command -v $(HOSTCC) >/dev/null 2>&1; then \
+		$(HOSTCC) -Itools/shim -Wall -Wextra -fsyntax-only touch_watcher.c && \
+		echo "touch_watcher.c compiles clean"; \
+	else echo "no host compiler, skipping touch_watcher.c check"; fi
 	@./tools/validate_quotes.sh quotes.csv
 
 .PHONY: preview
