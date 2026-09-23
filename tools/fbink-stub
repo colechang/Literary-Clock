@@ -1,0 +1,29 @@
+#!/bin/sh
+# Stand-in for the on-device fbink binary, so litclock.sh can be run and
+# eyeballed on a workstation:
+#
+#   LITCLOCK_FBINK=tools/fbink-stub LITCLOCK_CSV=quotes.csv ./litclock.sh
+#
+# Prints the rendered text to the terminal and notes the mode flags it was
+# handed instead of touching a framebuffer.
+TEXT=""
+MODE=""
+for arg in "$@"; do
+    case "$arg" in
+        -*) MODE="$MODE $arg" ;;
+        regular=*|*size=*) : ;;
+        *) TEXT="$arg" ;;
+    esac
+done
+
+case " $MODE " in
+    *" -f "*) echo "--- [fbink: full flashing refresh] ---"; exit 0 ;;
+esac
+
+case " $MODE " in
+    *" -H "*) NOTE="night mode" ;;
+    *)        NOTE="day mode" ;;
+esac
+
+echo "----------------------------------------------------------------- $NOTE"
+printf '%s\n' "$TEXT"
