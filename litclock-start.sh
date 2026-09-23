@@ -20,13 +20,14 @@ sleep 15
 killall nickel 2>/dev/null
 killall sickel 2>/dev/null
 killall sickel-launcher 2>/dev/null
+# Supervisors first, or they respawn the very things killed next.
+killall litclock-run.sh 2>/dev/null
 # Both watcher implementations, so a re-run never leaves a stale one behind:
 # this script launches the C binary (touch_watcher) but previously only killed
 # the old shell version, which left two watchers racing on the refresh flag.
-killall litclock-run.sh 2>/dev/null
-killall litclock-drain.sh 2>/dev/null
 killall touch_watcher 2>/dev/null
 killall touch_watcher.sh 2>/dev/null
+killall litclock-drain.sh 2>/dev/null
 killall litclock.sh 2>/dev/null
 mount -o remount,rw /mnt/sd
 
@@ -45,10 +46,12 @@ sleep 1
 $FBINK -q -m -M -t regular="$REGULAR",italic="$ITALIC",size=14,top=320,bottom=250,padding=BOTH,format "time told in literature"
 sleep 3
 
-# Hand off to main clock loop. Both are respawned if they die, otherwise the
-# screen just freezes on the last quote with nothing to indicate why.
-# Drain nickel's hardware-status FIFO. Must start before anything else has a
-# chance to strand a writer on it; see litclock-drain.sh for why.
+# Hand off to the daemons. All three run under litclock-run.sh, which restarts
+# them if they die — otherwise the screen just freezes on the last quote with
+# nothing to indicate why.
+#
+# The FIFO drainer goes first, before anything else can strand a writer on
+# nickel's hardware-status pipe; see litclock-drain.sh for why that matters.
 setsid nohup /mnt/sd/litclock-run.sh /mnt/sd/litclock-drain.sh > /dev/null 2>&1 &
 
 setsid nohup /mnt/sd/litclock-run.sh /mnt/sd/touch_watcher > /dev/null 2>&1 &

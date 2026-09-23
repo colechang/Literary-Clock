@@ -103,7 +103,9 @@ while true; do
         }')
 
     if [ -z "$LINE" ]; then
-        DISPLAY_TEXT="Time passes. ***$TIME***"
+        QUOTE_TEXT="Time passes. ***$TIME***"
+        ATTRIB=""
+        DISPLAY_TEXT="$QUOTE_TEXT"
     else
         LAST_LINE="$LINE"
         QUOTE=$(echo "$LINE" | cut -d'|' -f3)
@@ -117,9 +119,10 @@ while true; do
         ESCAPED=$(printf '%s' "$HIGHLIGHT" | sed 's/[][\.*^$]/\\&/g')
         # & and \ are special on the replacement side.
         REPLACE=$(printf '%s' "$HIGHLIGHT" | sed 's/[\&]/\\&/g')
-        DISPLAY_TEXT=$(echo "$QUOTE" | sed "s|$ESCAPED|***$REPLACE***|")
-        DISPLAY_TEXT="$DISPLAY_TEXT
-— $BOOK, $AUTHOR"
+        QUOTE_TEXT=$(echo "$QUOTE" | sed "s|$ESCAPED|***$REPLACE***|")
+        ATTRIB="— $BOOK, $AUTHOR"
+        DISPLAY_TEXT="$QUOTE_TEXT
+$ATTRIB"
     fi
 
     # Full flash refresh every FLASH_INTERVAL minutes to prevent ghosting.
@@ -145,32 +148,41 @@ while true; do
     # per character. LC_ALL=C is what makes tr byte-oriented rather than
     # character-oriented; without it this is a no-op in a UTF-8 locale. The ***
     # markers are fbink format markup and are never drawn, so they come off too.
-    QUOTE_LEN=$(echo "$DISPLAY_TEXT" | sed 's/\*\*\*//g' | LC_ALL=C tr -d '\200-\277' | wc -c)
+    # Pick the largest font whose line budget fits.
     #
-    # Thresholds measured on the panel itself, not guessed. fbink's bottom
-    # margin CLIPS text rather than overflowing it, so anything too long is
-    # silently cut off mid-sentence and the screen still looks fine. Rendering
-    # test strings with bottom=0 and checking for ink past the margin gives the
-    # real limits for this 800x600 area with top=80/bottom=60:
+    # Counting characters is not enough. The quote and the attribution wrap as
+    # two separate blocks — there is a hard line break between them — and each
+    # block wastes part of its last line. Two blocks therefore take more lines
+    # than one paragraph of the same length, and a character budget cannot see
+    # that. A real 175-character quote overflowed at size 26 while a
+    # 175-character lorem paragraph fitted; replacing only the newline with a
+    # space made the identical text fit. (The bold markup is not the cause:
+    # rendering with and without it overflowed by exactly the same amount.)
     #
-    #   size 26 overflows at 195 chars      size 16 overflows at 600
-    #   size 22 overflows at 295            size 14 overflows at 850
-    #   size 18 overflows at 465
+    # fbink clips at the bottom margin rather than overflowing, so getting this
+    # wrong silently truncates the quote mid-sentence and still looks fine.
     #
-    # The previous thresholds (250/400) sat well above the 26 and 22 limits, so
-    # 1467 of 3241 quotes — 45% — were being truncated on screen. These sit ~8%
-    # under each measured limit, to absorb bold runs and long words.
-    if [ "$QUOTE_LEN" -gt 560 ]; then
-        FONT_SIZE=14
-    elif [ "$QUOTE_LEN" -gt 430 ]; then
-        FONT_SIZE=16
-    elif [ "$QUOTE_LEN" -gt 270 ]; then
-        FONT_SIZE=18
-    elif [ "$QUOTE_LEN" -gt 175 ]; then
-        FONT_SIZE=22
-    else
-        FONT_SIZE=26
-    fi
+    # Both numbers below were measured on the panel, for this 800x600 area with
+    # top=80/bottom=60: lines each size fits, and characters per line.
+    #
+    #   size  lines  chars/line
+    #     26      7          27
+    #     22      9          32
+    #     18     11          41
+    #     16     12          49
+    #     14     14          60
+    QLEN=$(printf '%s' "$QUOTE_TEXT" | sed 's/\*\*\*//g' | LC_ALL=C tr -d '\200-\277' | wc -c)
+    ALEN=$(printf '%s' "$ATTRIB"     | sed 's/\*\*\*//g' | LC_ALL=C tr -d '\200-\277' | wc -c)
+
+    FONT_SIZE=14
+    for CAND in "26 27 7" "22 32 9" "18 41 11" "16 49 12" "14 60 14"; do
+        set -- $CAND
+        # Round each block up to whole lines independently.
+        if [ $(( (QLEN + $2 - 1) / $2 + (ALEN + $2 - 1) / $2 )) -le $3 ]; then
+            FONT_SIZE=$1
+            break
+        fi
+    done
 
     # Night mode between 10pm and 6am
     HOUR=$(date +%H)
