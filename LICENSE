@@ -6,8 +6,8 @@ This repository contains two separately licensed bodies of work.
 ================================================================================
 
 Applies to the shell scripts, the C source, the Makefile and the tooling:
-litclock.sh, litclock-start.sh, litclock-run.sh, touch_watcher.c,
-touch_watcher.sh, tools/, Makefile, and usr/local/stuff/bin/stuff.sh (see the
+litclock.sh, litclock-start.sh, litclock-run.sh, litclock-drain.sh,
+touch_watcher.c, tools/, Makefile, and usr/local/stuff/bin/stuff.sh (see the
 note below).
 
 MIT License

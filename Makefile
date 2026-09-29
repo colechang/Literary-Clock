@@ -17,7 +17,6 @@ KOBO    ?= kobo
 SDCARD  ?= /mnt/sd
 
 SCRIPTS = litclock.sh litclock-start.sh litclock-run.sh litclock-drain.sh \
-          touch_watcher.sh \
           tools/validate_quotes.sh tools/fbink-stub
 
 .PHONY: all

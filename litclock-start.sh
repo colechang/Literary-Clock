@@ -22,9 +22,9 @@ killall sickel 2>/dev/null
 killall sickel-launcher 2>/dev/null
 # Supervisors first, or they respawn the very things killed next.
 killall litclock-run.sh 2>/dev/null
-# Both watcher implementations, so a re-run never leaves a stale one behind:
-# this script launches the C binary (touch_watcher) but previously only killed
-# the old shell version, which left two watchers racing on the refresh flag.
+# Also the old shell watcher (touch_watcher.sh, since removed from the repo):
+# a card set up before the C binary existed may still start it, and two
+# watchers would race on the refresh flag.
 killall touch_watcher 2>/dev/null
 killall touch_watcher.sh 2>/dev/null
 killall litclock-drain.sh 2>/dev/null

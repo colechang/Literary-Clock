@@ -5,11 +5,10 @@
  * Listens for touch events on /dev/input/event1 and creates
  * /tmp/litclock_refresh when a touch is detected.
  *
- * Compile for ARM (Kobo Touch N905C):
- *   arm-linux-gnueabihf-gcc -o touch_watcher touch_watcher.c
- *
- * Or cross-compile with musl for a fully static binary:
- *   arm-linux-musleabihf-gcc -static -o touch_watcher touch_watcher.c
+ * Build with `make watcher-docker` (no toolchain needed) or
+ * `make watcher CC=arm-linux-musleabihf-gcc`. It must be a static musl
+ * binary: the device runs kernel 2.6.35, and modern glibc static binaries
+ * need 3.2+.
  */
 
 #include <stdio.h>
